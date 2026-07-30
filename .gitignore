@@ -1,0 +1,44 @@
+# Environment and secrets
+.env
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.installed.cfg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# SecondSelf — regeneratable / private data
+wiki/.index/
+raw/*
+!raw/.gitkeep
+wiki/Projects/*
+!wiki/Projects/.gitkeep
+wiki/Areas/*
+!wiki/Areas/.gitkeep
+wiki/Resources/*
+!wiki/Resources/.gitkeep
+wiki/Archives/*
+!wiki/Archives/.gitkeep
+
+# Optional: uncomment to keep all personal captures out of git
+# raw/
+# wiki/
+
+# IDE & Scratch
+.cursorignore
+.cursorindexingignore
+.idea/
+.vscode/
+scratch/
+SecondSelf — Your Personal AI Second Brain/
+
+# OS
+.DS_Store
+Thumbs.db
