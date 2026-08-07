@@ -61,23 +61,43 @@ secondself/
 └── requirements.txt
 ```
 
+## Usage
+
+```bash
+# 1. Capture anything (note, link, or file)
+python capture.py --note "Idea about RAG pipelines"
+python capture.py --link "https://example.com/article"
+python capture.py --file "./document.pdf"
+
+# 2. Run the processing pipeline (classify -> link -> build_graph)
+python pipeline.py
+
+# 3. Ask your brain questions in CLI
+python ask.py "What have I captured about machine learning?"
+
+# 4. Launch the Streamlit Web Application
+streamlit run app.py
+```
+
 ## Phase Roadmap
 
 | Phase | Name | Status |
 |-------|------|--------|
-| 0 | Project Bootstrap | Done |
-| 1 | The Archivist — Capture pipeline | Pending |
-| 2 | The Librarian — Classify + link | Pending |
-| 3 | The Cartographer — Interactive graph | Pending |
-| 4 | The Oracle — RAG + Streamlit deploy | Pending |
+| 0 | Project Bootstrap | Completed 🏆 |
+| 1 | The Archivist — Capture pipeline (`capture.py`) | Completed 🏆 |
+| 2 | The Librarian — Classify + link (`classify.py`, `link.py`) | Completed 🏆 |
+| 3 | The Cartographer — Interactive graph (`build_graph.py`) | Completed 🏆 |
+| 4 | The Oracle — RAG + Streamlit UI (`ask.py`, `app.py`, `pipeline.py`) | Completed 🏆 |
 
 ## Documentation
 
 - [Problem Statement](docs/Problem_Statement.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Implementation Plan](docs/implementation-plan.md)
+- [Deployment Plan](docs/deployment-plan.md)
 - [Edge Cases](docs/edge-case.md)
 
 ## License
 
-MIT (or your chosen license)
+MIT
+

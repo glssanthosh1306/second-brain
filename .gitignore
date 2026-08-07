@@ -14,31 +14,30 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
-# SecondSelf — regeneratable / private data
-wiki/.index/
+# SecondSelf — raw captures (ignored by default; keep gitkeep)
 raw/*
 !raw/.gitkeep
-wiki/Projects/*
-!wiki/Projects/.gitkeep
-wiki/Areas/*
-!wiki/Areas/.gitkeep
-wiki/Resources/*
-!wiki/Resources/.gitkeep
-wiki/Archives/*
-!wiki/Archives/.gitkeep
+
+# Track wiki notes and pre-computed indexes for deployment
+# (To keep personal notes private when sharing code publicly, uncomment the lines below)
+# wiki/
+# wiki/.index/
 
 # Optional: uncomment to keep all personal captures out of git
 # raw/
 # wiki/
 
 # IDE & Scratch
+.obsidian/
 .cursorignore
 .cursorindexingignore
 .idea/
 .vscode/
 scratch/
+test_phase2.py
 SecondSelf — Your Personal AI Second Brain/
 
 # OS
 .DS_Store
 Thumbs.db
+

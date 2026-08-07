@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecondSelf Brain Graph</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; font-family: 'Inter', sans-serif; }
+    body { background: #0a0a0f; color: #eee; overflow: hidden; }
+    #network { width: 100%; height: 100%; }
+
+    /* Legend overlay */
+    #legend {
+      position: fixed; bottom: 20px; left: 20px;
+      background: rgba(15,15,25,0.85); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 16px 20px;
+      backdrop-filter: blur(10px); z-index: 10;
+      font-size: 13px;
+    }
+    #legend h3 { margin: 0 0 10px; font-size: 14px; color: #fff; }
+    .legend-item { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+
+    /* Stats overlay */
+    #stats {
+      position: fixed; top: 20px; right: 20px;
+      background: rgba(15,15,25,0.85); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 14px 20px;
+      backdrop-filter: blur(10px); z-index: 10;
+      font-size: 13px;
+    }
+    #stats span { color: #ff00ff; font-weight: 600; }
+
+    /* Title */
+    #title {
+      position: fixed; top: 20px; left: 20px;
+      font-size: 22px; font-weight: 600; z-index: 10;
+      background: linear-gradient(135deg, #ff00ff, #00ffff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+  <script src="https://unpkg.com/vis-network@9.1.2/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+
+<div id="title">SecondSelf Brain Graph</div>
+
+<div id="stats">
+  Nodes: <span id="node-count">0</span> &nbsp;|&nbsp;
+  Edges: <span id="edge-count">0</span>
+</div>
+
+<div id="legend">
+  <h3>PARA Groups</h3>
+  <div class="legend-item"><div class="legend-dot" style="background:#ff00ff;box-shadow:0 0 8px #ff00ff"></div> Projects</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#00ffff;box-shadow:0 0 8px #00ffff"></div> Areas</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffea00;box-shadow:0 0 8px #ffea00"></div> Resources</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#7fff00;box-shadow:0 0 8px #7fff00"></div> Archives</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#888;box-shadow:0 0 8px #888"></div> Unclassified</div>
+</div>
+
+<div id="network"></div>
+
+<script>
+  // Graph data is embedded inline — no fetch() needed
+  const graphData = {"nodes": [{"id": "20260730_122046_20431c", "label": "A faster way to build and share data apps", "para": "Resources", "tags": ["streamlit", "data apps", "tools"], "content_preview": "# Streamlit • A faster way to build and share data apps  URL: https://streamlit.io/", "group": "Resources"}, {"id": "20260730_123041_d41b3f", "label": "Personal identification information", "para": "Areas", "tags": ["personal", "identity", "about-me"], "content_preview": "# Personal identification information  My name is Santhosh.", "group": "Areas"}, {"id": "20260730_122111_88690a", "label": "Example domain URL for reference", "para": "Resources", "tags": ["example domain", "url"], "content_preview": "# Example Domain  URL: https://example.com", "group": "Resources"}, {"id": "20260730_122045_2fc78c", "label": "Discussing local-first storage, privacy guarantees, and Markdown frontmatter schema for SecondSelf.", "para": "Projects", "tags": ["secondself", "local-first storage", "privacy guarantees", "markdown frontmatter schema"], "content_preview": "# Discussing local-first storage, privacy guarantees, and Markdown frontmatter schema for SecondSelf.  Meeting notes: Discuss local-first storage, privacy guarantees, and Markdown frontmatter schema f", "group": "Projects"}, {"id": "20260730_122045_652de4", "label": "Setup instructions for Groq API key llama-3.1-8b-instant", "para": "Resources", "tags": ["groq", "api key", "llama"], "content_preview": "# Setup instructions for Groq API key llama-3.1-8b-instant  Groq API key setup: llama-3.1-8b-instant provides fast inference for classification and Q&A.", "group": "Resources"}, {"id": "20260730_122045_9f0117", "label": "Explore scalable node size for graph visualization based on connectivity score", "para": "Projects", "tags": ["secondself", "graph visualization"], "content_preview": "# Explore scalable node size for graph visualization based on connectivity score  Idea for SecondSelf graph visualization: Node size could scale with incoming links / connectivity score.", "group": "Projects"}, {"id": "20260730_122045_e5df13", "label": "Complete Phase 1 capture pipeline CLI and verify raw directory schema", "para": "Projects", "tags": ["weekly planning", "phase 1", "cli", "pipeline"], "content_preview": "# Complete Phase 1 capture pipeline CLI and verify raw directory schema  Weekly Planning: Complete Phase 1 capture pipeline CLI, verify raw directory schema, run 10+ real items.", "group": "Projects"}, {"id": "20260730_122046_9e3a4d", "label": "Overview of LangChain's create_agent feature", "para": "Resources", "tags": ["langchain", "agent", "harness"], "content_preview": "# LangChain overview - Docs by LangChain  URL: https://python.langchain.com/  > LangChain provides create_agent: a minimal, highly configurable agent harness. Compose exactly the agent your use case n", "group": "Resources"}, {"id": "20260730_122048_d3bd9d", "label": "A pre-trained model for sentence transformation from Hugging Face.", "para": "Resources", "tags": ["huggingface", "sentence-transformers", "nlp"], "content_preview": "# sentence-transformers/all-MiniLM-L6-v2 · Hugging Face  URL: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2  > We’re on a journey to advance and democratize artificial intelligence thr", "group": "Resources"}, {"id": "20260730_122049_84acb3", "label": "Notes on RAG architecture, including text chunking, vector embeddings, and similarity search.", "para": "Resources", "tags": ["rag", "architecture", "notes"], "content_preview": "# File: rag_architecture_notes.txt  RAG Architecture Notes: Retrieval-Augmented Generation relies on high-quality text chunking, dense vector embeddings (e.g., sentence-transformers all-MiniLM-L6-v2),", "group": "Resources"}, {"id": "20260730_122049_8ab87f", "label": "Overview of the PARA method for organizing digital information", "para": "Resources", "tags": ["para_method", "guide"], "content_preview": "# File: para_method_guide.md  # The PARA Method Overview  Organize digital information into 4 top-level categories: 1. **Projects**: Short-term efforts with deadline and goal. 2. **Areas**: Ongoing re", "group": "Resources"}, {"id": "20260730_122100_f68b66", "label": "Note for Phase 1 CLI verification testing", "para": "Projects", "tags": ["cli", "testing", "verification"], "content_preview": "# Note for Phase 1 CLI verification testing  CLI test note for Phase 1 verification", "group": "Projects"}, {"id": "20260730_122122_0c1b59", "label": "RAG Architecture Notes on Retrieval-Augmented Generation and its components.", "para": "Resources", "tags": ["rag", "architecture", "notes"], "content_preview": "# File: rag_architecture_notes.txt  RAG Architecture Notes: Retrieval-Augmented Generation relies on high-quality text chunking, dense vector embeddings (e.g., sentence-transformers all-MiniLM-L6-v2),", "group": "Resources"}, {"id": "20260730_130014_c1953d", "label": "Notes on Retrieval-Augmented Generation (RAG) architecture, focusing on text chunking and vector embeddings.", "para": "Resources", "tags": ["rag", "architecture", "notes", "text chunking", "vector embeddings", "similarity search"], "content_preview": "# File: rag_architecture_notes.txt  RAG Architecture Notes: Retrieval-Augmented Generation relies on high-quality text chunking, dense vector embeddings (e.g., sentence-transformers all-MiniLM-L6-v2),", "group": "Resources"}, {"id": "20260807_090843_70ba44", "label": "Recording a video on a built-in feature", "para": null, "tags": ["video recording"], "content_preview": "I am recording a video on my built right now !", "group": null}, {"id": "20260730_122045_13de23", "label": "Reference to the pypdf GitHub repository", "para": "Resources", "tags": ["github", "pypdf"], "content_preview": "# https://github.com/pypdf/pypdf  URL: https://github.com/pypdf/pypdf  *(Metadata fetch omitted or failed during capture)*", "group": "Resources"}, {"id": "20260730_122049_4e25d7", "label": "Failed PDF extraction attempt for second_brain_research.pdf", "para": "Resources", "tags": ["pdf", "file", "reference"], "content_preview": "# File: second_brain_research.pdf  [PDF Text Extraction Failed: startxref not found]", "group": "Resources"}, {"id": "20260730_122049_df4d03", "label": "Python function for calculating cosine similarity between two vectors", "para": "Resources", "tags": ["python", "numpy", "embedding"], "content_preview": "# File: embedding_utils.py  import numpy as np  def cosine_similarity(v1: np.ndarray, v2: np.ndarray) -> float:     return float(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))", "group": "Resources"}, {"id": "20260730_125745_10ef13", "label": "LinkedIn profile of Santhosh GLS", "para": "Resources", "tags": ["linkedin", "profile"], "content_preview": "# https://www.linkedin.com/in/santhosh-gls  URL: https://www.linkedin.com/in/santhosh-gls  *(Metadata fetch omitted or failed during capture)*", "group": "Resources"}], "edges": [{"source": "20260730_122049_84acb3", "target": "20260730_122122_0c1b59", "weight": 1.0, "type": "semantic_similarity"}, {"source": "20260730_122049_84acb3", "target": "20260730_130014_c1953d", "weight": 1.0, "type": "semantic_similarity"}, {"source": "20260730_130014_c1953d", "target": "20260730_122122_0c1b59", "weight": 1.0, "type": "semantic_similarity"}]};
+
+  document.getElementById('node-count').textContent = graphData.nodes.length;
+  document.getElementById('edge-count').textContent = graphData.edges.length;
+
+  const container = document.getElementById('network');
+
+  const nodes = new vis.DataSet(graphData.nodes.map(n => ({
+    id: n.id,
+    label: n.label,
+    group: n.group || 'Unclassified',
+    title: '<div style="max-width:300px;font-family:Inter,sans-serif;font-size:13px">'
+         + '<b>' + n.label + '</b><br/>'
+         + '<em style="color:#aaa">' + (n.group || 'Unclassified') + '</em><br/><br/>'
+         + (n.content_preview || '') + '</div>',
+    font: { color: '#eee', size: 12 },
+  })));
+
+  const edges = new vis.DataSet(graphData.edges.map(e => ({
+    from: e.source,
+    to: e.target,
+    color: { color: 'rgba(255,255,255,0.15)', highlight: '#ff00ff', hover: '#00ffff' },
+    width: 1,
+    smooth: { type: 'continuous' },
+  })));
+
+  const options = {
+    physics: {
+      stabilization: { iterations: 150 },
+      barnesHut: { gravitationalConstant: -3000, springLength: 150, springConstant: 0.04 },
+    },
+    groups: {
+      Projects:     { color: { background: '#ff00ff', border: '#ff00ff', highlight: { background: '#ff66ff', border: '#ff00ff' } }, shadow: { enabled: true, color: 'rgba(255,0,255,0.5)', size: 10 } },
+      Areas:        { color: { background: '#00ffff', border: '#00ffff', highlight: { background: '#66ffff', border: '#00ffff' } }, shadow: { enabled: true, color: 'rgba(0,255,255,0.5)', size: 10 } },
+      Resources:    { color: { background: '#ffea00', border: '#ffea00', highlight: { background: '#fff066', border: '#ffea00' } }, shadow: { enabled: true, color: 'rgba(255,234,0,0.5)', size: 10 } },
+      Archives:     { color: { background: '#7fff00', border: '#7fff00', highlight: { background: '#a5ff4d', border: '#7fff00' } }, shadow: { enabled: true, color: 'rgba(127,255,0,0.5)', size: 10 } },
+      Unclassified: { color: { background: '#888',    border: '#888',    highlight: { background: '#aaa',    border: '#888'    } }, shadow: { enabled: true, color: 'rgba(136,136,136,0.3)', size: 6  } },
+    },
+    nodes: {
+      shape: 'dot',
+      size: 18,
+      borderWidth: 2,
+      font: { color: '#eee', size: 12 },
+    },
+    edges: {
+      smooth: { type: 'continuous' },
+    },
+    interaction: {
+      hover: true,
+      tooltipDelay: 150,
+      navigationButtons: true,
+      keyboard: true,
+      zoomView: true,
+    },
+  };
+
+  new vis.Network(container, { nodes, edges }, options);
+</script>
+</body>
+</html>

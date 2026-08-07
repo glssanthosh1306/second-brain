@@ -1,0 +1,250 @@
+{
+  "nodes": [
+    {
+      "id": "20260730_122046_20431c",
+      "label": "A faster way to build and share data apps",
+      "para": "Resources",
+      "tags": [
+        "streamlit",
+        "data apps",
+        "tools"
+      ],
+      "content_preview": "# Streamlit • A faster way to build and share data apps  URL: https://streamlit.io/",
+      "group": "Resources"
+    },
+    {
+      "id": "20260730_123041_d41b3f",
+      "label": "Personal identification information",
+      "para": "Areas",
+      "tags": [
+        "personal",
+        "identity",
+        "about-me"
+      ],
+      "content_preview": "# Personal identification information  My name is Santhosh.",
+      "group": "Areas"
+    },
+    {
+      "id": "20260730_122111_88690a",
+      "label": "Example domain URL for reference",
+      "para": "Resources",
+      "tags": [
+        "example domain",
+        "url"
+      ],
+      "content_preview": "# Example Domain  URL: https://example.com",
+      "group": "Resources"
+    },
+    {
+      "id": "20260730_122045_2fc78c",
+      "label": "Discussing local-first storage, privacy guarantees, and Markdown frontmatter schema for SecondSelf.",
+      "para": "Projects",
+      "tags": [
+        "secondself",
+        "local-first storage",
+        "privacy guarantees",
+        "markdown frontmatter schema"
+      ],
+      "content_preview": "# Discussing local-first storage, privacy guarantees, and Markdown frontmatter schema for SecondSelf.  Meeting notes: Discuss local-first storage, privacy guarantees, and Markdown frontmatter schema f",
+      "group": "Projects"
+    },
+    {
+      "id": "20260730_122045_652de4",
+      "label": "Setup instructions for Groq API key llama-3.1-8b-instant",
+      "para": "Resources",
+      "tags": [
+        "groq",
+        "api key",
+        "llama"
+      ],
+      "content_preview": "# Setup instructions for Groq API key llama-3.1-8b-instant  Groq API key setup: llama-3.1-8b-instant provides fast inference for classification and Q&A.",
+      "group": "Resources"
+    },
+    {
+      "id": "20260730_122045_9f0117",
+      "label": "Explore scalable node size for graph visualization based on connectivity score",
+      "para": "Projects",
+      "tags": [
+        "secondself",
+        "graph visualization"
+      ],
+      "content_preview": "# Explore scalable node size for graph visualization based on connectivity score  Idea for SecondSelf graph visualization: Node size could scale with incoming links / connectivity score.",
+      "group": "Projects"
+    },
+    {
+      "id": "20260730_122045_e5df13",
+      "label": "Complete Phase 1 capture pipeline CLI and verify raw directory schema",
+      "para": "Projects",
+      "tags": [
+        "weekly planning",
+        "phase 1",
+        "cli",
+        "pipeline"
+      ],
+      "content_preview": "# Complete Phase 1 capture pipeline CLI and verify raw directory schema  Weekly Planning: Complete Phase 1 capture pipeline CLI, verify raw directory schema, run 10+ real items.",
+      "group": "Projects"
+    },
+    {
+      "id": "20260730_122046_9e3a4d",
+      "label": "Overview of LangChain's create_agent feature",
+      "para": "Resources",
+      "tags": [
+        "langchain",
+        "agent",
+        "harness"
+      ],
+      "content_preview": "# LangChain overview - Docs by LangChain  URL: https://python.langchain.com/  > LangChain provides create_agent: a minimal, highly configurable agent harness. Compose exactly the agent your use case n",
+      "group": "Resources"
+    },
+    {
+      "id": "20260730_122048_d3bd9d",
+      "label": "A pre-trained model for sentence transformation from Hugging Face.",
+      "para": "Resources",
+      "tags": [
+        "huggingface",
+        "sentence-transformers",
+        "nlp"
+      ],
+      "content_preview": "# sentence-transformers/all-MiniLM-L6-v2 · Hugging Face  URL: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2  > We’re on a journey to advance and democratize artificial intelligence thr",
+      "group": "Resources"
+    },
+    {
+      "id": "20260730_122049_84acb3",
+      "label": "Notes on RAG architecture, including text chunking, vector embeddings, and similarity search.",
+      "para": "Resources",
+      "tags": [
+        "rag",
+        "architecture",
+        "notes"
+      ],
+      "content_preview": "# File: rag_architecture_notes.txt  RAG Architecture Notes: Retrieval-Augmented Generation relies on high-quality text chunking, dense vector embeddings (e.g., sentence-transformers all-MiniLM-L6-v2),",
+      "group": "Resources"
+    },
+    {
+      "id": "20260730_122049_8ab87f",
+      "label": "Overview of the PARA method for organizing digital information",
+      "para": "Resources",
+      "tags": [
+        "para_method",
+        "guide"
+      ],
+      "content_preview": "# File: para_method_guide.md  # The PARA Method Overview  Organize digital information into 4 top-level categories: 1. **Projects**: Short-term efforts with deadline and goal. 2. **Areas**: Ongoing re",
+      "group": "Resources"
+    },
+    {
+      "id": "20260730_122100_f68b66",
+      "label": "Note for Phase 1 CLI verification testing",
+      "para": "Projects",
+      "tags": [
+        "cli",
+        "testing",
+        "verification"
+      ],
+      "content_preview": "# Note for Phase 1 CLI verification testing  CLI test note for Phase 1 verification",
+      "group": "Projects"
+    },
+    {
+      "id": "20260730_122122_0c1b59",
+      "label": "RAG Architecture Notes on Retrieval-Augmented Generation and its components.",
+      "para": "Resources",
+      "tags": [
+        "rag",
+        "architecture",
+        "notes"
+      ],
+      "content_preview": "# File: rag_architecture_notes.txt  RAG Architecture Notes: Retrieval-Augmented Generation relies on high-quality text chunking, dense vector embeddings (e.g., sentence-transformers all-MiniLM-L6-v2),",
+      "group": "Resources"
+    },
+    {
+      "id": "20260730_130014_c1953d",
+      "label": "Notes on Retrieval-Augmented Generation (RAG) architecture, focusing on text chunking and vector embeddings.",
+      "para": "Resources",
+      "tags": [
+        "rag",
+        "architecture",
+        "notes",
+        "text chunking",
+        "vector embeddings",
+        "similarity search"
+      ],
+      "content_preview": "# File: rag_architecture_notes.txt  RAG Architecture Notes: Retrieval-Augmented Generation relies on high-quality text chunking, dense vector embeddings (e.g., sentence-transformers all-MiniLM-L6-v2),",
+      "group": "Resources"
+    },
+    {
+      "id": "20260807_090843_70ba44",
+      "label": "Recording a video on a built-in feature",
+      "para": null,
+      "tags": [
+        "video recording"
+      ],
+      "content_preview": "I am recording a video on my built right now !",
+      "group": null
+    },
+    {
+      "id": "20260730_122045_13de23",
+      "label": "Reference to the pypdf GitHub repository",
+      "para": "Resources",
+      "tags": [
+        "github",
+        "pypdf"
+      ],
+      "content_preview": "# https://github.com/pypdf/pypdf  URL: https://github.com/pypdf/pypdf  *(Metadata fetch omitted or failed during capture)*",
+      "group": "Resources"
+    },
+    {
+      "id": "20260730_122049_4e25d7",
+      "label": "Failed PDF extraction attempt for second_brain_research.pdf",
+      "para": "Resources",
+      "tags": [
+        "pdf",
+        "file",
+        "reference"
+      ],
+      "content_preview": "# File: second_brain_research.pdf  [PDF Text Extraction Failed: startxref not found]",
+      "group": "Resources"
+    },
+    {
+      "id": "20260730_122049_df4d03",
+      "label": "Python function for calculating cosine similarity between two vectors",
+      "para": "Resources",
+      "tags": [
+        "python",
+        "numpy",
+        "embedding"
+      ],
+      "content_preview": "# File: embedding_utils.py  import numpy as np  def cosine_similarity(v1: np.ndarray, v2: np.ndarray) -> float:     return float(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))",
+      "group": "Resources"
+    },
+    {
+      "id": "20260730_125745_10ef13",
+      "label": "LinkedIn profile of Santhosh GLS",
+      "para": "Resources",
+      "tags": [
+        "linkedin",
+        "profile"
+      ],
+      "content_preview": "# https://www.linkedin.com/in/santhosh-gls  URL: https://www.linkedin.com/in/santhosh-gls  *(Metadata fetch omitted or failed during capture)*",
+      "group": "Resources"
+    }
+  ],
+  "edges": [
+    {
+      "source": "20260730_122049_84acb3",
+      "target": "20260730_122122_0c1b59",
+      "weight": 1.0,
+      "type": "semantic_similarity"
+    },
+    {
+      "source": "20260730_122049_84acb3",
+      "target": "20260730_130014_c1953d",
+      "weight": 1.0,
+      "type": "semantic_similarity"
+    },
+    {
+      "source": "20260730_130014_c1953d",
+      "target": "20260730_122122_0c1b59",
+      "weight": 1.0,
+      "type": "semantic_similarity"
+    }
+  ]
+}
