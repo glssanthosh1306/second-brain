@@ -58,7 +58,7 @@ st.markdown(
 
     /* Main Container Padding */
     .block-container {
-        padding-top: 1.5rem;
+        padding-top: 3.5rem !important;
         padding-bottom: 3rem;
         max-width: 1200px;
     }
@@ -68,7 +68,9 @@ st.markdown(
         display: flex;
         align-items: center;
         gap: 12px;
+        margin-top: 0.5rem;
         margin-bottom: 4px;
+        line-height: 1.3;
     }
     .app-title {
         font-size: 2.2rem;
