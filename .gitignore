@@ -18,14 +18,15 @@ __pycache__/
 raw/*
 !raw/.gitkeep
 
-# Track wiki notes and pre-computed indexes for deployment
-# (To keep personal notes private when sharing code publicly, uncomment the lines below)
-# wiki/
-# wiki/.index/
-
-# Optional: uncomment to keep all personal captures out of git
-# raw/
-# wiki/
+# Ignore personal wiki notes (keep directory structure via .gitkeep)
+wiki/Projects/*
+!wiki/Projects/.gitkeep
+wiki/Areas/*
+!wiki/Areas/.gitkeep
+wiki/Resources/*
+!wiki/Resources/.gitkeep
+wiki/Archives/*
+!wiki/Archives/.gitkeep
 
 # IDE & Scratch
 .obsidian/
