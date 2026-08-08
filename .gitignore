@@ -28,6 +28,14 @@ wiki/Resources/*
 wiki/Archives/*
 !wiki/Archives/.gitkeep
 
+# Auto-generated graph data, HTML visualizations, and index (keep gitkeep)
+data/*
+!data/.gitkeep
+static/*
+!static/.gitkeep
+wiki/.index/*
+!wiki/.index/.gitkeep
+
 # IDE & Scratch
 .obsidian/
 .cursorignore
