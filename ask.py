@@ -124,6 +124,7 @@ def _load_notes() -> Dict[str, "WikiNote"]:
         for nid, entry in registry.items():
             rel_path: str = entry.get("wiki_path", "")
             title: str = entry.get("title", "")
+            category: str = entry.get("category", "Resources")
             tags: List[str] = entry.get("tags", [])
             note_path = WIKI_DIR / rel_path
             if not note_path.is_file():
@@ -141,6 +142,7 @@ def _load_notes() -> Dict[str, "WikiNote"]:
                 path=note_path,
                 content=body.strip(),
                 title=title,
+                category=category,
                 tags=tags,
             )
         _notes_cache = notes
@@ -155,6 +157,7 @@ class WikiNote:
     path: Path
     content: str
     title: str = ""
+    category: str = "Resources"
     tags: List[str] = None
 
 @dataclass
@@ -163,12 +166,14 @@ class RetrievedNote:
     content: str
     score: float
     title: str = ""
+    category: str = "Resources"
     tags: List[str] = None
 
 @dataclass
 class Answer:
     text: str
     sources: List[str]
+    retrieved_sources: List[RetrievedNote] = None
     confidence: float | None = None
 
 # ---------------------------------------------------------------------------
@@ -211,6 +216,7 @@ def retrieve(question: str, top_k: int = DEFAULT_TOP_K) -> List[RetrievedNote]:
                     content=note.content,
                     score=score,
                     title=note.title,
+                    category=note.category,
                     tags=note.tags or [],
                 )
             )
@@ -229,14 +235,53 @@ def build_context(retrieved: List[RetrievedNote]) -> str:
         blocks.append(f"Note ID: {note.id}\n{title_line}{tags_line}Content:\n{body}\n---")
     return "\n".join(blocks)
 
+def clean_and_format_answer(text: str) -> str:
+    """Clean meta-references like 'According to Note ID: ...' or '(Note ID: ...)' and enforce proper capitalization and punctuation."""
+    if not text:
+        return ""
+
+    import re
+
+    cleaned = text.strip()
+
+    # Remove leading meta-patterns like "According to Note ID: <id>," "Based on the provided notes," "According to your notes," etc.
+    leading_pattern = r"^(?:according\s+to|based\s+on)\s+(?:note\s+id:?\s*[a-z0-9_]+|the\s+note(?:s)?|your\s+note(?:s)?|the\s+provided\s+note(?:s)?)[,\s:]*"
+    cleaned = re.sub(leading_pattern, "", cleaned, flags=re.IGNORECASE).strip()
+
+    # Strip any lingering "Note ID: <id>" at start
+    cleaned = re.sub(r"^note\s+id:?\s*[a-z0-9_]+[,\s:]*", "", cleaned, flags=re.IGNORECASE).strip()
+
+    # Strip inline or trailing note ID citations like "(Note ID: 20260808_064915_9cebc7)" or "(Note ID 20260808_064915_9cebc7)" or "[Note ID: ...]"
+    cleaned = re.sub(r"\s*\(\s*note\s+id:?\s*[a-z0-9_]+\s*\)", "", cleaned, flags=re.IGNORECASE).strip()
+    cleaned = re.sub(r"\s*\[\s*note\s+id:?\s*[a-z0-9_]+\s*\]", "", cleaned, flags=re.IGNORECASE).strip()
+
+    # Also strip isolated note IDs in parentheses
+    cleaned = re.sub(r"\s*\(\s*20[0-9]{6}_[0-9]{6}_[a-z0-9]{6}\s*\)", "", cleaned, flags=re.IGNORECASE).strip()
+
+    if not cleaned:
+        cleaned = text.strip()
+
+    # Capitalize the first letter if string starts with a letter
+    if cleaned and cleaned[0].isalpha():
+        cleaned = cleaned[0].upper() + cleaned[1:]
+
+    # Ensure ending punctuation (. ! ?)
+    if cleaned and not cleaned.endswith((".", "!", "?", ":")):
+        cleaned += "."
+
+    return cleaned
+
+
 # ---------------------------------------------------------------------------
 # LLM interaction
 # ---------------------------------------------------------------------------
 RAG_PROMPT_TEMPLATE = """You answer questions using the provided notes from the user's personal knowledge base.
-Synthesize a clear, helpful response based on the note titles, tags, and content.
-Include relevant topics found in the notes (such as AI, Machine Learning, embeddings, personal info, tools, etc.).
-If the provided notes contain no relevant information at all, state that clearly.
-Always cite the relevant Note IDs when referencing information from a note.
+
+Guidelines:
+1. Provide a direct, clear, well-organized, and concise answer to the question based on the notes.
+2. DO NOT include meta-phrases or note IDs in your text response (e.g., do NOT say "According to Note ID: ...", "Based on Note ID ...", "Note ID: ...", or "According to the notes...").
+3. Ensure the response starts directly with the answer (first letter capitalized), structured neatly, and ends with proper punctuation (such as a full stop).
+4. If the provided notes contain no relevant information at all, state clearly: "I couldn't find relevant information in your knowledge base."
 
 Notes:
 ---
@@ -259,7 +304,7 @@ def _call_groq(prompt: str) -> str:
     )
     return response.choices[0].message.content.strip()
 
-def synthesize_answer(question: str, context: str) -> Answer:
+def synthesize_answer(question: str, context: str, retrieved_notes: List[RetrievedNote] = None) -> Answer:
     """Run the LLM and extract cited note IDs.
 
     Returns an ``Answer`` instance. If the model produces no
@@ -267,11 +312,17 @@ def synthesize_answer(question: str, context: str) -> Answer:
     """
     prompt = RAG_PROMPT_TEMPLATE.format(notes=context, question=question)
     raw_text = _call_groq(prompt)
+
+    formatted_text = clean_and_format_answer(raw_text)
+
     import re
     cited = re.findall(r"\b[0-9]{8}_[0-9]{6}_[a-z0-9]{6}\b", raw_text)
+    if not cited and retrieved_notes and "couldn't find relevant information" not in formatted_text.lower():
+        cited = [note.id for note in retrieved_notes]
+
     seen = set()
     sources = [x for x in cited if not (x in seen or seen.add(x))]
-    return Answer(text=raw_text, sources=sources)
+    return Answer(text=formatted_text, sources=sources, retrieved_sources=retrieved_notes or [])
 
 # ---------------------------------------------------------------------------
 # Public API used by Streamlit
@@ -286,9 +337,9 @@ def ask(question: str) -> Answer:
     """
     retrieved = retrieve(question)
     if not retrieved:
-        return synthesize_answer(question, "")
+        return synthesize_answer(question, "", [])
     context = build_context(retrieved)
-    return synthesize_answer(question, context)
+    return synthesize_answer(question, context, retrieved)
 
 # ---------------------------------------------------------------------------
 # Simple CLI for debugging / manual testing

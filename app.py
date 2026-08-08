@@ -1,10 +1,10 @@
-"""SecondSelf — Streamlit Web Application (Phase 4)
+"""SecondSelf — Streamlit Web Application
 
-Interactive UI combining:
-  1. Header & Quick Search / RAG Ask Interface (ask.py)
-  2. Answer Display with Cited Sources & Note Previews
-  3. Interactive Force-Directed Brain Graph (vis-network embedding)
-  4. Sidebar: Brain Stats, Capture Form (capture.py), & Pipeline Refresh (pipeline.py)
+Clean & exact implementation matching reference UI design:
+  - Header: Brain Icon title, tagline, top-right Refresh graph button, info banner box.
+  - Ask Your Brain section: Red 'Ask' button inline with input, answer output, bulleted sources list with green code badges.
+  - Knowledge Graph section: Embedded interactive vis-network force-directed graph.
+  - Sidebar: Capture note form, Pipeline process button, Stats section (Wiki notes, Graph nodes, Graph edges).
 """
 
 import json
@@ -32,76 +32,105 @@ RAW_DIR = ROOT / "raw"
 
 # Page Configuration
 st.set_page_config(
-    page_title="SecondSelf — Your Personal AI Second Brain",
+    page_title="SecondSelf — Your personal AI second brain",
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# Custom CSS for Premium Design
+# Inject custom CSS to match reference image UI and suppress broken images
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
 
+    /* Hide any broken img tags at top left */
+    [data-testid="stSidebarHeader"] img,
+    img[alt="0"],
+    .stApp header img,
+    .stSidebar img {
+        display: none !important;
+    }
+
     /* Main Container Padding */
     .block-container {
-        padding-top: 2rem;
+        padding-top: 1.5rem;
         padding-bottom: 3rem;
+        max-width: 1200px;
     }
 
-    /* Gradient Header Title */
-    .main-title {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0.2rem;
+    /* Header styling */
+    .app-title-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 4px;
     }
-
-    .sub-title {
-        font-size: 1.05rem;
+    .app-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #ffffff;
+    }
+    .app-subtitle {
+        font-size: 0.95rem;
         color: #94a3b8;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
 
-    /* Glassmorphic Card Container */
-    .glass-card {
-        background: rgba(30, 41, 59, 0.5);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Source Badge */
-    .source-badge {
-        display: inline-block;
-        background: rgba(168, 85, 247, 0.2);
-        color: #c084fc;
-        border: 1px solid rgba(168, 85, 247, 0.4);
-        padding: 4px 10px;
+    /* Info Banner Box */
+    .info-banner {
+        background-color: rgba(30, 58, 138, 0.35);
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        color: #93c5fd;
+        padding: 0.75rem 1rem;
         border-radius: 8px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-right: 6px;
-        margin-top: 6px;
+        font-size: 0.88rem;
+        margin-bottom: 1.75rem;
     }
 
-    /* Streamlit Button Tweaks */
-    div.stButton > button {
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all 0.2s ease;
+    /* Section Headings */
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f8fafc;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
     }
-    div.stButton > button:hover {
-        transform: translateY(-1px);
+
+    /* Primary Red Buttons */
+    div.stButton > button[kind="primary"],
+    div.stFormSubmitButton > button {
+        background-color: #ff4b4b !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        height: 42px;
+    }
+    div.stButton > button[kind="primary"]:hover,
+    div.stFormSubmitButton > button:hover {
+        background-color: #ff3333 !important;
+    }
+
+    /* Source Green Code Badges */
+    .source-badge-code {
+        background-color: rgba(74, 222, 128, 0.15);
+        color: #4ade80;
+        font-family: monospace;
+        font-size: 0.85rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .source-item {
+        margin-bottom: 6px;
+        font-size: 0.92rem;
+        line-height: 1.6;
     }
     </style>
     """,
@@ -136,130 +165,140 @@ def load_graph_stats():
 # SIDEBAR
 # ===========================================================================
 with st.sidebar:
-    st.image("https://img.icons8.com/gradient/96/brain.png", width=64)
-    st.title("SecondSelf Control Center")
+    st.markdown("## **Capture**")
+    st.caption("Quick note")
 
-    st.markdown("---")
-    st.subheader("📊 Brain Stats")
-    stats = load_graph_stats()
-    col1, col2 = st.columns(2)
-    col1.metric("Total Notes", stats["nodes"])
-    col2.metric("Auto Links", stats["edges"])
-
-    if stats["para_counts"]:
-        st.markdown("**PARA Breakdown:**")
-        for para, cnt in stats["para_counts"].items():
-            st.caption(f"• **{para}**: {cnt} notes")
-
-    st.markdown("---")
-
-    # Quick Capture Section
-    st.subheader("⚡ Quick Capture")
-    capture_type = st.radio("Capture Type", ["Text Note", "Web Link", "File"], horizontal=True)
-
-    with st.form("quick_capture_form", clear_on_submit=True):
-        if capture_type == "Text Note":
-            note_text = st.text_area("Note Content", placeholder="Capture an idea, thought, or snippet...")
-            submitted = st.form_submit_button("📥 Capture Note", use_container_width=True)
-            if submitted and note_text.strip():
-                cid = capture_note(note_text)
-                st.success(f"Captured note! ID: `{cid}`")
-                st.info("Click 'Refresh Brain' below to classify & link your new capture.")
-
-        elif capture_type == "Web Link":
-            link_url = st.text_input("URL", placeholder="https://example.com/article")
-            submitted = st.form_submit_button("🔗 Capture Link", use_container_width=True)
-            if submitted and link_url.strip():
-                cid = capture_link(link_url)
-                st.success(f"Captured link! ID: `{cid}`")
-                st.info("Click 'Refresh Brain' below to process.")
-
-        elif capture_type == "File":
-            uploaded = st.file_uploader("Upload File (PDF / TXT / MD)")
-            submitted = st.form_submit_button("📁 Capture File", use_container_width=True)
-            if submitted and uploaded:
-                tmp_dir = ROOT / "scratch"
-                tmp_dir.mkdir(exist_ok=True)
-                tmp_path = tmp_dir / uploaded.name
-                with open(tmp_path, "wb") as f:
-                    f.write(uploaded.getbuffer())
-                cid = capture_file(str(tmp_path))
-                st.success(f"Captured file! ID: `{cid}`")
-                st.info("Click 'Refresh Brain' below to process.")
+    with st.form("sidebar_capture_form", clear_on_submit=True):
+        note_input = st.text_area(
+            "Quick note",
+            placeholder="Capture a thought, task, or insight...",
+            label_visibility="collapsed",
+            height=100,
+        )
+        submitted_capture = st.form_submit_button("Capture note", use_container_width=True)
+        if submitted_capture and note_input.strip():
+            cid = capture_note(note_input)
+            st.success(f"Captured note: `{cid}`")
 
     st.markdown("---")
 
-    # Pipeline Trigger Button
-    st.subheader("🔄 Pipeline Runner")
-    if st.button("🚀 Refresh Brain Pipeline", use_container_width=True, help="Runs classify → link → build_graph"):
-        with st.spinner("Processing captures, computing embeddings & rebuilding graph..."):
+    st.markdown("## **Pipeline**")
+    force_reprocess = st.checkbox("Force re-process")
+    if st.button("Process new captures", use_container_width=True, type="primary"):
+        with st.spinner("Processing captures & rebuilding pipeline..."):
             res = run_full_pipeline()
             if res == 0:
                 st.cache_data.clear()
-                st.success("Pipeline refreshed successfully!")
+                st.success("Pipeline processing complete!")
                 st.rerun()
             else:
                 st.error("Pipeline run encountered an error.")
+
+    st.markdown("---")
+
+    st.markdown("## **Stats**")
+    stats = load_graph_stats()
+    st.markdown(f"**Wiki notes**\n### {stats['nodes']}")
+    st.markdown(f"**Graph nodes**\n### {stats['nodes']}")
+    st.markdown(f"**Graph edges**\n### {stats['edges']}")
 
 
 # ===========================================================================
 # MAIN PAGE CONTENT
 # ===========================================================================
 
-# Header Banner
-st.markdown('<div class="main-title">SecondSelf</div>', unsafe_allow_html=True)
+# Header & Top Action
+col_title, col_btn = st.columns([4, 1])
+
+with col_title:
+    st.markdown(
+        '<div class="app-title-container"><span style="font-size: 2.2rem;">🧠</span><span class="app-title">SecondSelf</span></div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="app-subtitle">Your personal AI second brain — capture, organize, explore, ask.</div>',
+        unsafe_allow_html=True,
+    )
+
+with col_btn:
+    st.write("")  # vertical spacing
+    if st.button("Refresh graph", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
+
+# Info Banner
 st.markdown(
-    '<div class="sub-title">Your Personal AI Second Brain — Self-Organizing Knowledge Base & RAG Oracle</div>',
+    '<div class="info-banner">Hosted demo: the graph and bundled notes load from the repo. Captures and pipeline changes are session-only and reset on redeploy.</div>',
     unsafe_allow_html=True,
 )
 
-# Tabs Navigation
-tab_ask, tab_graph = st.tabs(["💬 Ask Your Brain", "🕸️ Interactive Brain Graph"])
-
 # ---------------------------------------------------------------------------
-# TAB 1: ASK YOUR BRAIN (RAG QA)
+# SECTION 1: ASK YOUR BRAIN
 # ---------------------------------------------------------------------------
-with tab_ask:
-    st.markdown("##### Ask any question across your personal notes, links, and documents:")
+st.markdown('<div class="section-title">Ask your brain</div>', unsafe_allow_html=True)
 
-    with st.form("ask_form"):
+with st.form("ask_form", clear_on_submit=False):
+    col_input, col_ask = st.columns([5, 1])
+    with col_input:
         user_query = st.text_input(
             "Question",
-            placeholder="e.g. What notes have I saved about RAG architectures or machine learning?",
+            placeholder="Do you know about masai live class ?",
             label_visibility="collapsed",
         )
-        ask_button = st.form_submit_button("✨ Ask Brain", use_container_width=True)
+    with col_ask:
+        ask_submitted = st.form_submit_button("Ask", use_container_width=True)
 
-    if ask_button and user_query.strip():
-        with st.spinner("Searching personal knowledge base & synthesizing answer via Groq..."):
-            try:
-                ans = ask(user_query.strip())
-                st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-                st.subheader("Answer")
-                st.markdown(ans.text)
+if ask_submitted and user_query.strip():
+    with st.spinner("Synthesizing answer..."):
+        try:
+            ans = ask(user_query.strip())
 
-                if ans.sources:
-                    st.markdown("---")
-                    st.markdown("**Source Notes Cited:**")
-                    sources_html = "".join([f'<span class="source-badge">📄 {src}</span>' for src in ans.sources])
-                    st.markdown(sources_html, unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
-            except Exception as err:
-                st.error(f"⚠️ Error asking brain: {err}")
+            # Answer Output
+            st.markdown(
+                f"<div style='font-size:1.05rem; line-height:1.6; margin-top:0.75rem; margin-bottom:1.5rem;'>{ans.text}</div>",
+                unsafe_allow_html=True,
+            )
 
-    elif not ask_button:
-        st.info("💡 **Tip**: Type a question above to retrieve context from your PARA wiki notes and synthesize grounded answers with citations.")
+            # Sources Section
+            if hasattr(ans, "retrieved_sources") and ans.retrieved_sources:
+                st.markdown("#### **Sources**")
+                for src in ans.retrieved_sources:
+                    short_id = src.id[-8:] if len(src.id) > 8 else src.id
+                    category = src.category or "Resources"
+                    score_str = f"{src.score:.3f}"
+                    summary = src.title or (src.content[:90].replace('\n', ' ') + "...")
 
+                    source_html = f"""
+                    <div class="source-item">
+                        • <span class="source-badge-code">{short_id}</span> · <strong>{category}</strong> · score <strong>{score_str}</strong> — {summary}
+                    </div>
+                    """
+                    st.markdown(source_html, unsafe_allow_html=True)
+
+            elif ans.sources:
+                st.markdown("#### **Sources**")
+                for sid in ans.sources:
+                    short_id = sid[-8:] if len(sid) > 8 else sid
+                    source_html = f"""
+                    <div class="source-item">
+                        • <span class="source-badge-code">{short_id}</span> · <strong>Resources</strong> — Cited note {sid}
+                    </div>
+                    """
+                    st.markdown(source_html, unsafe_allow_html=True)
+
+        except Exception as err:
+            st.error(f"⚠️ Error asking brain: {err}")
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
-# TAB 2: INTERACTIVE BRAIN GRAPH
+# SECTION 2: KNOWLEDGE GRAPH
 # ---------------------------------------------------------------------------
-with tab_graph:
-    st.markdown("##### Force-Directed Knowledge Graph (Projects, Areas, Resources, Archives)")
+st.markdown('<div class="section-title">Knowledge graph</div>', unsafe_allow_html=True)
 
-    if GRAPH_HTML_PATH.is_file():
-        with open(GRAPH_HTML_PATH, "r", encoding="utf-8") as f:
-            html_content = f.read()
-        components.html(html_content, height=650, scrolling=False)
-    else:
-        st.warning("Graph HTML not built yet. Click 'Refresh Brain Pipeline' in the sidebar to generate it.")
+if GRAPH_HTML_PATH.is_file():
+    with open(GRAPH_HTML_PATH, "r", encoding="utf-8") as f:
+        html_content = f.read()
+    components.html(html_content, height=650, scrolling=False)
+else:
+    st.warning("Knowledge graph HTML not built yet. Click 'Process new captures' in the sidebar to generate it.")
