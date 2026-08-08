@@ -72,12 +72,22 @@ DEFAULT_TOP_K = 5
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 
 # ---------------------------------------------------------------------------
-# Global caches – loaded once per process for speed
+# Global caches – auto-reloaded when index files on disk change
 # ---------------------------------------------------------------------------
 _embedding_model: SentenceTransformer | None = None
-# Tuple of (list[note_id], ndarray[N, 384]) — matches the pickle format
 _embeddings_cache: tuple | None = None
+_embeddings_mtime: float = 0
 _notes_cache: Dict[str, "WikiNote"] | None = None
+_notes_mtime: float = 0
+
+
+def reload_caches() -> None:
+    """Explicitly reset in-memory caches so fresh files are read on next ask()."""
+    global _embeddings_cache, _notes_cache, _embeddings_mtime, _notes_mtime
+    _embeddings_cache = None
+    _notes_cache = None
+    _embeddings_mtime = 0
+    _notes_mtime = 0
 
 
 def _get_embedding_model() -> SentenceTransformer:
@@ -88,36 +98,25 @@ def _get_embedding_model() -> SentenceTransformer:
 
 
 def _load_embeddings() -> tuple:
-    """Load (or return cached) note embeddings.
-
-    The pickle stores a dict with two keys:
-      - ``"ids"``: list of note ID strings, length N
-      - ``"vectors"``: ``np.ndarray`` of shape (N, embedding_dim)
-
-    Returns a ``(ids, matrix)`` tuple for direct use in similarity search.
-    """
-    global _embeddings_cache
-    if _embeddings_cache is None:
+    """Load (or return cached) note embeddings. Automatically reloads if file changes."""
+    global _embeddings_cache, _embeddings_mtime
+    current_mtime = EMBEDDINGS_PATH.stat().st_mtime if EMBEDDINGS_PATH.is_file() else 0
+    if _embeddings_cache is None or current_mtime > _embeddings_mtime:
         with open(EMBEDDINGS_PATH, "rb") as f:
             data = pickle.load(f)
         # Unpack the stored structure
         ids: list = data["ids"]
         matrix: np.ndarray = data["vectors"]
         _embeddings_cache = (ids, matrix)
+        _embeddings_mtime = current_mtime
     return _embeddings_cache
 
 
 def _load_notes() -> Dict[str, "WikiNote"]:
-    """Load (or return cached) wiki notes ready for retrieval.
-
-    The note registry JSON maps each note ID to a dict with at least:
-      { "wiki_path": "<PARA>/filename.md", "category": "...", "tags": [...], "title": "..." }
-
-    This function reads each markdown file relative to ``WIKI_DIR``, strips
-    any YAML front‑matter, and caches the result for the process lifetime.
-    """
-    global _notes_cache
-    if _notes_cache is None:
+    """Load (or return cached) wiki notes ready for retrieval. Automatically reloads if registry changes."""
+    global _notes_cache, _notes_mtime
+    current_mtime = NOTE_REGISTRY_PATH.stat().st_mtime if NOTE_REGISTRY_PATH.is_file() else 0
+    if _notes_cache is None or current_mtime > _notes_mtime:
         with open(NOTE_REGISTRY_PATH, "r", encoding="utf-8") as f:
             registry: Dict[str, dict] = json.load(f)
         notes: Dict[str, WikiNote] = {}
@@ -146,6 +145,7 @@ def _load_notes() -> Dict[str, "WikiNote"]:
                 tags=tags,
             )
         _notes_cache = notes
+        _notes_mtime = current_mtime
     return _notes_cache
 
 # ---------------------------------------------------------------------------

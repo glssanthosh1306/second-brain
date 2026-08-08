@@ -15,7 +15,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 # Import SecondSelf modules
-from ask import ask
+from ask import ask, reload_caches
 from capture import capture_note, capture_link, capture_file
 from pipeline import run_full_pipeline
 from config import ensure_project_dirs
@@ -188,8 +188,9 @@ with st.sidebar:
     force_reprocess = st.checkbox("Force re-process")
     if st.button("Process new captures", use_container_width=True, type="primary"):
         with st.spinner("Processing captures & rebuilding pipeline..."):
-            res = run_full_pipeline()
+            res = run_full_pipeline(force_classify=force_reprocess)
             if res == 0:
+                reload_caches()
                 st.cache_data.clear()
                 st.success("Pipeline processing complete!")
                 st.rerun()
